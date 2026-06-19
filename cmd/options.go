@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/projectdiscovery/goflags"
 )
 
@@ -43,6 +45,13 @@ func ParseOptions() (*Options, error) {
 
 	if err := flagSet.Parse(); err != nil {
 		return nil, err
+	}
+
+	if options.Threads <= 0 {
+		return nil, fmt.Errorf("threads must be greater than 0")
+	}
+	if options.Retries < 0 {
+		return nil, fmt.Errorf("retries must not be negative")
 	}
 
 	return options, nil

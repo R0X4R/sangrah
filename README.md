@@ -32,7 +32,7 @@ graph TD
     F --> G["[SAVED] on screen"]
     C -->|"All tries failed"| H["[FAIL] on error screen"]
     G --> I["Exit 0"]
-    H --> I
+    H --> J["Exit 1"]
 ```
 
 ## Features

@@ -16,7 +16,7 @@ on:
         type: boolean
 
 env:
-  GO_VERSION: '1.23'
+  GO_VERSION: '1.26.2'
 
 jobs:
   build-and-upload:
@@ -55,12 +55,14 @@ jobs:
 
       - name: Determine version
         id: version
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version }}
         shell: bash
         run: |
           if [ "${{ github.event_name }}" = "release" ]; then
             ver="${GITHUB_REF#refs/tags/}"
           else
-            ver="${{ github.event.inputs.version }}"
+            ver="${INPUT_VERSION}"
           fi
           echo "VERSION=$ver" >> $GITHUB_ENV
           echo "version=$ver" >> $GITHUB_OUTPUT
@@ -72,8 +74,10 @@ jobs:
 
       - name: Build
         shell: bash
+        env:
+          BUILD_VERSION: ${{ steps.version.outputs.version }}
         run: |
-          go build -v -ldflags="-s -w -X main.version=${{ steps.version.outputs.version }}" \
+          go build -v -ldflags="-s -w -X main.version=${BUILD_VERSION}" \
             -o "ressrf${{ matrix.goos == 'windows' && '.exe' || '' }}" .
 
       - name: Build archive

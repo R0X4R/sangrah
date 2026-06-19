@@ -96,7 +96,7 @@ func doFetch(rawURL string, opts *Options) ([]byte, error) {
 		return nil, fmt.Errorf("HTTP %s", resp.Status)
 	}
 
-	data, err := io.ReadAll(resp.Body)
+	data, err := io.ReadAll(io.LimitReader(resp.Body, 50<<20))
 	if err != nil {
 		return nil, fmt.Errorf("reading body: %w", err)
 	}
