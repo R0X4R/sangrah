@@ -115,8 +115,13 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG_NAME: ${{ steps.version.outputs.version }}
         run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
+          else
+            TAG_NAME="${{ steps.version.outputs.version }}"
+          fi
+
           gh release upload "$TAG_NAME" \
             "${{ steps.archive.outputs.asset }}" \
             "${{ steps.archive.outputs.asset }}.sha256" \
