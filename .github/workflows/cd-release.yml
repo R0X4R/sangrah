@@ -112,9 +112,12 @@ jobs:
 
       - name: Upload release archive
         if: github.event_name == 'release' || github.event.inputs.upload == 'true'
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: ${{ steps.version.outputs.version }}
-          files: |-
-            ${{ steps.archive.outputs.asset }}
-            ${{ steps.archive.outputs.asset }}.sha256
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ steps.version.outputs.version }}
+        run: |
+          gh release upload "$TAG_NAME" \
+            "${{ steps.archive.outputs.asset }}" \
+            "${{ steps.archive.outputs.asset }}.sha256" \
+            --clobber
