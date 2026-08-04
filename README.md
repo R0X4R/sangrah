@@ -41,7 +41,7 @@ graph TD
 * **Auto beautify.** Every JS file goes through jsbeautifier. If it fails, you get the original code.
 * **Try again on fail.** Waits 1s, then 2s, then 4s, then 8s. Max wait is 10s. Set retry count with `-r`.
 * **Custom headers and cookies.** Use `-H` for auth tokens (use it many times). Use `-b` for a Cookie value.
-* **Silent mode.** `-s` hides `[SAVED]` lines. Only shows `[FAIL]`. Good for scripts.
+* **Silent mode.** `-s` hides `downloaded successfully` lines. Only shows `failed to download`. Good for scripts.
 * **Safe file names.** Special characters become `_`. `.js` at the end stays.
 
 ## Installation
