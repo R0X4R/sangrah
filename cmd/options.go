@@ -30,7 +30,7 @@ func ParseOptions() (*Options, error) {
 
 	flagSet.CreateGroup("request", "Request",
 		flagSet.StringSliceVarP(&options.Headers, "header", "H", nil, "\tCustom header (repeatable, e.g. -H 'Authorization: Bearer xxx')", goflags.StringSliceOptions),
-		flagSet.StringVarP(&options.Cookie, "cookie", "c", "", "\tCookie header value"),
+		flagSet.StringVarP(&options.Cookie, "cookie", "b", "", "\tCookie header value"),
 	)
 
 	flagSet.CreateGroup("runtime", "Performance",

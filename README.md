@@ -1,4 +1,4 @@
-# sangrah
+![sangrah](.github/thumbnail.png)
 
 <a href="#features">Features</a> •
 <a href="#workflow">Workflow</a> •
@@ -40,8 +40,8 @@ graph TD
 * **Download many at once.** Worker pool runs URLs in parallel. Default 10 workers. Change with `-t`.
 * **Auto beautify.** Every JS file goes through jsbeautifier. If it fails, you get the original code.
 * **Try again on fail.** Waits 1s, then 2s, then 4s, then 8s. Max wait is 10s. Set retry count with `-r`.
-* **Custom headers and cookies.** Use `-H` for auth tokens (use it many times). Use `-c` for a Cookie value.
-* **Silent mode.** `-s` hides `[SAVED]` lines. Only shows `[FAIL]`. Good for scripts.
+* **Custom headers and cookies.** Use `-H` for auth tokens (use it many times). Use `-b` for a Cookie value.
+* **Silent mode.** `-s` hides `downloaded successfully` lines. Only shows `failed to download`. Good for scripts.
 * **Safe file names.** Special characters become `_`. `.js` at the end stays.
 
 ## Installation
@@ -68,7 +68,7 @@ sangrah -h
 | --- | --- | --- | --- |
 | `-i` | `--input` |  | File containing URLs (one per line, or pipe to stdin) |
 | `-H` | `--header` |  | Add a custom header. Use again for more: `-H 'Key: Value'` |
-| `-c` | `--cookie` |  | Cookie header value |
+| `-b` | `--cookie` |  | Cookie header value |
 | `-t` | `--threads` | 10 | Number of concurrent downloads (default 10) |
 | `-r` | `--retries` | 3 | Retry count on failure (default 3) |
 | `-o` | `--output` | `.` | Output directory for downloaded JS files |
@@ -97,7 +97,7 @@ sangrah -i urls.txt -t 50 -o ./js-dump
 With auth header and cookie:
 
 ```bash
-sangrah -i urls.txt -H "Authorization: Bearer eys" -c "session=abc123"
+sangrah -i urls.txt -H "Authorization: Bearer eys" -b "session=abc123"
 ```
 
 ## Configuration

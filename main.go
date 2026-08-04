@@ -20,8 +20,9 @@ import (
 var nonAlphaNum = regexp.MustCompile(`[^a-zA-Z0-9-]`)
 
 var (
-	green = color.New(color.FgGreen).SprintFunc()
-	red   = color.New(color.FgRed).SprintFunc()
+	green  = color.New(color.FgGreen).SprintFunc()
+	red    = color.New(color.FgRed).SprintFunc()
+	yellow = color.New(color.FgYellow).SprintFunc()
 )
 
 func main() {
@@ -33,7 +34,7 @@ func main() {
 
 	urls := readURLs(opts)
 	if len(urls) == 0 {
-		fmt.Fprintln(os.Stderr, "ERROR: no URLs provided. Pipe to stdin or use -i <file>")
+		fmt.Fprintf(os.Stderr, "[%s] No URLs provided. Pipe to stdin or use -i <file>\n", red("ERR"))
 		os.Exit(1)
 	}
 
@@ -52,7 +53,7 @@ func main() {
 
 			data, fetchErr := cmd.FetchJS(rawURL, opts)
 			if fetchErr != nil {
-				fmt.Fprintf(os.Stderr, "%s %s: %v\n", red("[FAIL]"), rawURL, fetchErr)
+				fmt.Fprintf(os.Stderr, "[%s] %s [%s]\n", red("WRN"), rawURL, yellow(fetchErr.Error()))
 				failed.Add(1)
 				return
 			}
@@ -63,13 +64,13 @@ func main() {
 
 			os.MkdirAll(opts.OutputDir, 0755)
 			if writeErr := os.WriteFile(outputPath, beautified, 0644); writeErr != nil {
-				fmt.Fprintf(os.Stderr, "%s %s: %v\n", red("[FAIL]"), rawURL, writeErr)
+				fmt.Fprintf(os.Stderr, "[%s] %s [%v]\n", red("WRN"), rawURL, yellow(writeErr))
 				failed.Add(1)
 				return
 			}
 
 			if !opts.Silent {
-				fmt.Fprintf(os.Stdout, "%s %s\n", green("[SAVED]"), rawURL)
+				fmt.Fprintf(os.Stdout, "[%s] %s\n", green("DWN"), rawURL)
 			}
 		}(u)
 	}
@@ -89,7 +90,11 @@ func readURLs(opts *cmd.Options) []string {
 	if opts.InputFile != "" {
 		data, err := os.ReadFile(opts.InputFile)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "ERROR: reading %s: %v\n", opts.InputFile, err)
+			if pathErr, ok := err.(*os.PathError); ok {
+				fmt.Fprintf(os.Stderr, "[%s] Could not read %s [%s]\n", red("ERR"), opts.InputFile, yellow(pathErr.Err))
+			} else {
+				fmt.Fprintf(os.Stderr, "[%s] Could not read %s [%s]\n", red("ERR"), opts.InputFile, yellow(err))
+			}
 			os.Exit(1)
 		}
 		for _, line := range strings.Split(string(data), "\n") {
@@ -111,7 +116,7 @@ func readURLs(opts *cmd.Options) []string {
 			}
 		}
 		if err := scanner.Err(); err != nil {
-			fmt.Fprintf(os.Stderr, "ERROR: reading stdin: %v\n", err)
+			fmt.Fprintf(os.Stderr, "[%s] Could not read stdin [%s]\n", red("ERR"), yellow(err))
 			os.Exit(1)
 		}
 	}

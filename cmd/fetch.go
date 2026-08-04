@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -8,6 +9,15 @@ import (
 	"strings"
 	"time"
 )
+
+// HTTPError represents an HTTP response error containing a status code.
+type HTTPError struct {
+	StatusCode int
+}
+
+func (e *HTTPError) Error() string {
+	return fmt.Sprintf("HTTP %d", e.StatusCode)
+}
 
 var httpClient *http.Client
 
@@ -59,6 +69,13 @@ func FetchJS(rawURL string, opts *Options) ([]byte, error) {
 		if err == nil {
 			return data, nil
 		}
+
+		// Don't retry client errors (400-499).
+		var httpErr *HTTPError
+		if errors.As(err, &httpErr) && httpErr.StatusCode >= 400 && httpErr.StatusCode < 500 {
+			return nil, err
+		}
+
 		lastErr = err
 	}
 
@@ -93,7 +110,7 @@ func doFetch(rawURL string, opts *Options) ([]byte, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP %s", resp.Status)
+		return nil, &HTTPError{StatusCode: resp.StatusCode}
 	}
 
 	data, err := io.ReadAll(io.LimitReader(resp.Body, 50<<20))
