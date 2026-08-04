@@ -5,6 +5,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -59,6 +60,12 @@ func FetchJS(rawURL string, opts *Options) ([]byte, error) {
 		if err == nil {
 			return data, nil
 		}
+
+		// Don't retry client errors (400-499).
+		if matched, _ := regexp.MatchString(`^4\d{2}$`, err.Error()); matched {
+			return nil, err
+		}
+
 		lastErr = err
 	}
 
@@ -93,7 +100,10 @@ func doFetch(rawURL string, opts *Options) ([]byte, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP %s", resp.Status)
+		if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+			return nil, fmt.Errorf("%d", resp.StatusCode)
+		}
+		return nil, fmt.Errorf("HTTP %d", resp.StatusCode)
 	}
 
 	data, err := io.ReadAll(io.LimitReader(resp.Body, 50<<20))
